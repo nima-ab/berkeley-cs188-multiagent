@@ -145,6 +145,46 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
     Your minimax agent (question 2)
     """
+    def minimax(self, game_state, agent_index=0, search_depth=0.0):
+        state_value = None
+        state_action = None
+
+        num_agents = game_state.getNumAgents()
+        if agent_index >= num_agents:
+            agent_index = 0
+
+        if game_state.isWin() or game_state.isLose() or search_depth / num_agents == self.depth:
+            return self.evaluationFunction(game_state), None
+
+        if not agent_index:
+            for action in game_state.getLegalActions(agent_index):
+                successor = game_state.generateSuccessor(agent_index, action)
+                successor_value, _ = self.minimax(successor, agent_index + 1, search_depth + 1)
+
+                if state_value is None:
+                    state_value = successor_value
+                else:
+                    state_value = max(state_value, successor_value)
+
+                if state_value == successor_value:
+                    state_action = action
+
+            return state_value, state_action
+
+        else:
+            for action in game_state.getLegalActions(agent_index):
+                successor = game_state.generateSuccessor(agent_index, action)
+                successor_value, _ = self.minimax(successor, agent_index + 1, search_depth + 1)
+
+                if state_value is None:
+                    state_value = successor_value
+                else:
+                    state_value = min(state_value, successor_value)
+
+                if state_value == successor_value:
+                    state_action = action
+
+            return state_value, state_action
 
     def getAction(self, gameState):
         """
@@ -170,7 +210,9 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        _, action = self.minimax(game_state=gameState)
+
+        return action
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
