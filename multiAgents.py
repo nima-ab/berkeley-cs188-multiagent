@@ -344,7 +344,55 @@ def betterEvaluationFunction(currentGameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    capsules = currentGameState.getCapsules()
+    foods = currentGameState.getFood().asList()
+    ghost_states = currentGameState.getGhostStates()
+    pacman_position = currentGameState.getPacmanPosition()
+    value = currentGameState.getScore()
+
+    food_distance = 0
+    for food in foods:
+        if food == pacman_position:
+            value += 200
+        else:
+            manhattan_distance = manhattanDistance(pacman_position, food)
+            food_distance += manhattan_distance
+
+    capsule_distance = 0
+    for capsule in capsules:
+        if pacman_position == capsule:
+            value += 400
+        else:
+            manhattan_distance = manhattanDistance(pacman_position, capsule)
+            capsule_distance += manhattan_distance
+
+    scared_ghost_counter = 0
+    active_ghost_counter = 0
+    for ghost_state in ghost_states:
+        ghost_position = ghost_state.getPosition()
+
+        if ghost_state.scaredTimer:
+            if ghost_position == pacman_position:
+                value += 2000
+
+            manhattan_distance = manhattanDistance(pacman_position, ghost_position)
+            if manhattan_distance <= 1:
+                scared_ghost_counter += 1
+
+        else:
+            if ghost_position == pacman_position:
+                value -= 2000
+
+            manhattan_distance = manhattanDistance(pacman_position, ghost_position)
+            if manhattan_distance <= 1:
+                active_ghost_counter += 1
+
+    value -= food_distance * 0.1
+    value -= capsule_distance * 40
+    value -= active_ghost_counter * 200
+    value += scared_ghost_counter * 100
+
+    return value
 
 
 # Abbreviation
